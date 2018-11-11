@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { Post } from '../post.model';
 import { PostsService } from '../posts.service';
 import { Subscription } from 'rxjs';
+import { PageEvent } from '@angular/material';
 
 @Component({
   selector: 'app-post-list',
@@ -10,12 +11,13 @@ import { Subscription } from 'rxjs';
 })
 export class PostListComponent implements OnInit, OnDestroy {
 
-  // posts = [
-  //   { title: 'First Post', content: 'This is first post content' },
-  //   { title: 'Second Post', content: 'This is second post content' },
-  //   { title: 'Third Post', content: 'This is third post content' }
-  // ];
   private _postsSubscription = new Subscription();
+
+  public isLoading = false;
+  public totalPosts = 10;
+  public postsPerPage = 2;
+  public currentPage = 1;
+  public pageSizeOptions = [1, 2, 5, 10];
 
   @Input()
   posts: Post[] = [];
@@ -24,15 +26,41 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._postsSubscription.add(
-      this.postsService.posts.subscribe((posts) => {
-        this.posts = posts;
+      this.postsService.posts.subscribe((postsData) => {
+        this.isLoading = false;
+        this.totalPosts = postsData.totalPosts;
+        this.posts = postsData.posts;
       }));
 
-    this.postsService.loadPosts();
+    this.isLoading = true;
+    this.postsService.loadPosts({
+      currentPage: 1,
+      postsPerPage: this.postsPerPage
+    });
   }
 
   ngOnDestroy() {
     this._postsSubscription.unsubscribe();
   }
 
+
+  onDelete(id: string) {
+    this.postsService.deletePost(id).subscribe(() => {
+      this.postsService.loadPosts({
+        currentPage: 1,
+        postsPerPage: this.postsPerPage
+      });
+    });
+  }
+
+  onChangedPage(pageData: PageEvent) {
+    console.log(pageData);
+    this.currentPage = pageData.pageIndex + 1;
+    this.postsPerPage = pageData.pageSize;
+    this.isLoading = true;
+    this.postsService.loadPosts({
+      currentPage: this.currentPage,
+      postsPerPage: this.postsPerPage
+    });
+  }
 }

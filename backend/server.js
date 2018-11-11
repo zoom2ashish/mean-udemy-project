@@ -40,7 +40,7 @@ const onError = error => {
 const onListening = () => {
   const addr = server.address();
   const bind = typeof port === "string" ? "pipe " + port : "port " + port;
-  debug("Listening on " + bind);
+  console.log("Listening on " + bind, addr);
 };
 
 const port = normalizePort(process.env.PORT || "3000");
@@ -49,4 +49,4 @@ app.set("port", port);
 const server = http.createServer(app);
 server.on("error", onError);
 server.on("listening", onListening);
-server.listen(port);
+server.listen(port, '0.0.0.0');
