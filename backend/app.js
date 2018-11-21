@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const postsRoutes = require('./routes/posts');
+const userRoutes = require('./routes/user');
+
 const app = express();
 
 mongoose.connect('mongodb+srv://demo:demo@mean-udemy-cluster-pshfy.mongodb.net/mean-udemy-example?retryWrites=true', { useNewUrlParser: true }).then(() => {
@@ -26,5 +28,5 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/posts', postsRoutes);
-
+app.use('/api/user', userRoutes);
 module.exports = app;
